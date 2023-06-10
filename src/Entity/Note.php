@@ -36,6 +36,9 @@ class Note
     #[ORM\JoinColumn(nullable: true)]
     private ?User $utilisateur = null;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $titreCritique = null;
+
     public function __construct()
     {
         $this->commentaires = new ArrayCollection();
@@ -132,6 +135,18 @@ class Note
     public function setUtilisateur(?User $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    public function getTitreCritique(): ?string
+    {
+        return $this->titreCritique;
+    }
+
+    public function setTitreCritique(?string $titreCritique): self
+    {
+        $this->titreCritique = $titreCritique;
 
         return $this;
     }

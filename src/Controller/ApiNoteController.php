@@ -29,8 +29,8 @@ class ApiNoteController extends AbstractController{
                 //renvoyer un json
                 return $this->json(['erreur'=>'Le Json est vide ou n\'existe pas'], 400, 
                 ['Content-Type'=>'application/json',
-                'Access-Control-Allow-Origin'=> 'localhost',
-                'Access-Control-Allow-Methods'=> 'GET'],[]);
+                'Access-Control-Allow-Origin'=> 'http://localhost:5173',
+                'Access-Control-Allow-Methods'=> 'GET','POST'],[]);
             }
             //sérializer le json en tableau
             $data = $serialize->decode($json, 'json');
@@ -38,44 +38,36 @@ class ApiNoteController extends AbstractController{
             //test si le livre existe déja
             $verifLivre = $repoBook->findOneBy(['idApi'=>$data['idApi']]);
             if($verifLivre){
-                // $recup = $repo->findOneBy(['mail'=>$data['mail']]);
-                // //test doublon d'une note pour l'utilisateur
-                //     if($recup){
-                //     //renvoyer un json
-                //     return $this->json(['erreur'=>'Vous avez déja posté une note !'], 206, 
-                //     ['Content-Type'=>'application/json',
-                //     'Access-Control-Allow-Origin'=> '*',
-                //     'Access-Control-Allow-Methods'=> 'GET'],[]);
-                // }else{
-                    //set des valeurs à l'objet
                     $note->setScore(Utils::cleanInputStatic($data['note']));
                     $note->setCritique(Utils::cleanInputStatic($data['critique']));
-                    $note->setDate(new \DateTimeImmutable(Utils::cleanInputStatic($data['date'])));
+                    $note->setDate(new \DateTimeImmutable(Utils::cleanInputStatic($data['dateCritique'])));
+                    $note->setTitreCritique(Utils::cleanInputStatic($data['titreCritique']));
                     $note->setLivre($verifLivre);
                     $em->persist($note);
                     $em->flush();
-
                     return $this->json(['erreur'=>'L\'article '.$note->getScore().' a été ajouté en BDD'], 200, 
                     ['Content-Type'=>'application/json',
-                    'Access-Control-Allow-Origin'=> 'localhost',
-                    'Access-Control-Allow-Methods'=> 'GET'],[]);
+                    'Access-Control-Allow-Origin'=> 'http://localhost:5173',
+                    'Access-Control-Allow-Methods'=> 'GET','POST'],[]);
                 }else{
+                $book = $con->addLivre($data,$em);
                 $note->setScore(Utils::cleanInputStatic($data['note']));
                 $note->setCritique(Utils::cleanInputStatic($data['critique']));
                 $note->setDate(new \DateTimeImmutable(Utils::cleanInputStatic($data['date'])));
+                $note->setTitreCritique(Utils::cleanInputStatic($data['titreCritique']));
+                $note->setLivre($book);
                 $em->persist($note);
                 $em->flush();
-                $book = $con->addLivre($data,$em,$note);
                     return $this->json(['erreur'=>'L\'article '.$note->getScore().' a été ajouté en BDD en plus du livre'], 200, 
                     ['Content-Type'=>'application/json',
-                    'Access-Control-Allow-Origin'=> 'localhost',
-                    'Access-Control-Allow-Methods'=> 'GET'],[]);
+                    'Access-Control-Allow-Origin'=> 'http://localhost:5173',
+                    'Access-Control-Allow-Methods'=> 'GET','POST'],[]);
             }
         }catch(\Exception $e){
             return $this->json(['erreur'=>$e->getMessage()], 500, 
             ['Content-Type'=>'application/json',
-            'Access-Control-Allow-Origin'=> 'localhost',
-            'Access-Control-Allow-Methods'=> 'GET'],[]);;
+            'Access-Control-Allow-Origin'=> 'http://localhost:5173',
+            'Access-Control-Allow-Methods'=> 'GET','POST'],[]);;
         }
     }
 }

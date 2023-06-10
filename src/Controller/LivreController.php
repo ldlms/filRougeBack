@@ -12,12 +12,12 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class LivreController extends AbstractController
 {
-    public function addLivre($data,EntityManagerInterface $em,$note){
+    public function addLivre($data,EntityManagerInterface $em){
         $book = new Livre();
         $book->setTitre(Utils::cleanInputStatic($data['titre']));
         $book->setDate(new \DateTimeImmutable(Utils::cleanInputStatic($data['date'])));
         $book->setidAPI(Utils::cleanInputStatic($data['idApi']));
-        $book->addNote($note);
+        $book->setAuteur(Utils::cleanInputStatic($data['auteur']));
 
         $em->persist($book);
         $em->flush();

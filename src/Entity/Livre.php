@@ -34,6 +34,9 @@ class Livre
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $idApi = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $auteur = null;
+
     public function __construct()
     {
         $this->liste = new ArrayCollection();
@@ -163,6 +166,18 @@ class Livre
                 $favori->setLivre(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAuteur(): ?string
+    {
+        return $this->auteur;
+    }
+
+    public function setAuteur(string $auteur): self
+    {
+        $this->auteur = $auteur;
 
         return $this;
     }
