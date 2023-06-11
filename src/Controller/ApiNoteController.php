@@ -71,16 +71,16 @@ class ApiNoteController extends AbstractController{
         }
     }
 
-    #[Route('/api/note/all', name:'app_api_note_all', methods:'GET')]
-    public function getArticle(ArticleRepository $repo):Response{
-        $articles = $repo->findAll();
-        if(empty($articles)){
-           // dd('test');
+    #[Route('/api/note/id/{id}', name:'app_api_note_all', methods:'GET')]
+    public function getNoteById(NoteRepository $repo,LivreRepository $repoBook,int $id):Response{
+        $livre = $repoBook->findOneBy(['idApi'=>$id]);
+        $notes = $repo->findBy(['id_livre'=>$livre->getId()]);
+        if(empty($notes)){
             return $this->json(['erreur'=>'Il n\'y a pas de critiques'], 206, ['Content-Type'=>'application/json',
             'Access-Control-Allow-Origin'=> '*',
             'Access-Control-Allow-Methods'=> 'GET']);
         }
-        return $this->json($data, 200, 
+        return $this->json($notes, 200, 
                     ['Content-Type'=>'application/json',
                     'Access-Control-Allow-Origin'=> '*',
                     'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'critique:readAll']);
