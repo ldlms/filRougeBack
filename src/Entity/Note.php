@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: NoteRepository::class)]
 class Note
@@ -14,19 +15,24 @@ class Note
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['note:readAll', 'note:id'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['note:readAll', 'note:id'])]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column]
+    #[Groups(['note:readAll', 'note:id'])]
     private ?int $score = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['note:readAll', 'note:id'])]
     private ?string $critique = null;
 
     #[ORM\ManyToOne(inversedBy: 'note')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['note:readAll'])]
     private ?Livre $livre = null;
 
     #[ORM\OneToMany(mappedBy: 'note', targetEntity: Commentaire::class, orphanRemoval: true)]
@@ -34,9 +40,11 @@ class Note
 
     #[ORM\ManyToOne(inversedBy: 'note')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['note:readAll'])]
     private ?User $utilisateur = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['note:readAll'])]
     private ?string $titreCritique = null;
 
     public function __construct()

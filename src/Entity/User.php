@@ -17,6 +17,7 @@ class User
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['note:readAll'])]
     private ?string $pseudo = null;
 
     #[ORM\Column(length: 100)]

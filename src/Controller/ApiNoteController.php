@@ -29,8 +29,8 @@ class ApiNoteController extends AbstractController{
                 //renvoyer un json
                 return $this->json(['erreur'=>'Le Json est vide ou n\'existe pas'], 400, 
                 ['Content-Type'=>'application/json',
-                'Access-Control-Allow-Origin'=> 'http://localhost:5173',
-                'Access-Control-Allow-Methods'=> 'GET','POST'],[]);
+                'Access-Control-Allow-Origin'=> '*',
+                'Access-Control-Allow-Methods'=> 'GET'],[]);
             }
             //sérializer le json en tableau
             $data = $serialize->decode($json, 'json');
@@ -45,10 +45,10 @@ class ApiNoteController extends AbstractController{
                     $note->setLivre($verifLivre);
                     $em->persist($note);
                     $em->flush();
-                    return $this->json(['erreur'=>'L\'article '.$note->getScore().' a été ajouté en BDD'], 200, 
+                    return $this->json($data, 200, 
                     ['Content-Type'=>'application/json',
-                    'Access-Control-Allow-Origin'=> 'http://localhost:5173',
-                    'Access-Control-Allow-Methods'=> 'GET','POST'],[]);
+                    'Access-Control-Allow-Origin'=> '*',
+                    'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'critique:readAll']);
                 }else{
                 $book = $con->addLivre($data,$em);
                 $note->setScore(Utils::cleanInputStatic($data['note']));
@@ -58,17 +58,32 @@ class ApiNoteController extends AbstractController{
                 $note->setLivre($book);
                 $em->persist($note);
                 $em->flush();
-                    return $this->json(['erreur'=>'L\'article '.$note->getScore().' a été ajouté en BDD en plus du livre'], 200, 
-                    ['Content-Type'=>'application/json',
-                    'Access-Control-Allow-Origin'=> 'http://localhost:5173',
-                    'Access-Control-Allow-Methods'=> 'GET','POST'],[]);
+                return $this->json($data, 200, 
+                ['Content-Type'=>'application/json',
+                'Access-Control-Allow-Origin'=> '*',
+                'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'critique:readAll']);
             }
         }catch(\Exception $e){
             return $this->json(['erreur'=>$e->getMessage()], 500, 
             ['Content-Type'=>'application/json',
-            'Access-Control-Allow-Origin'=> 'http://localhost:5173',
+            'Access-Control-Allow-Origin'=> '*',
             'Access-Control-Allow-Methods'=> 'GET','POST'],[]);;
         }
+    }
+
+    #[Route('/api/note/all', name:'app_api_note_all', methods:'GET')]
+    public function getArticle(ArticleRepository $repo):Response{
+        $articles = $repo->findAll();
+        if(empty($articles)){
+           // dd('test');
+            return $this->json(['erreur'=>'Il n\'y a pas de critiques'], 206, ['Content-Type'=>'application/json',
+            'Access-Control-Allow-Origin'=> '*',
+            'Access-Control-Allow-Methods'=> 'GET']);
+        }
+        return $this->json($data, 200, 
+                    ['Content-Type'=>'application/json',
+                    'Access-Control-Allow-Origin'=> '*',
+                    'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'critique:readAll']);
     }
 }
 
