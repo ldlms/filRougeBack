@@ -32,7 +32,6 @@ class Note
 
     #[ORM\ManyToOne(inversedBy: 'note')]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['note:readAll'])]
     private ?Livre $livre = null;
 
     #[ORM\OneToMany(mappedBy: 'note', targetEntity: Commentaire::class, orphanRemoval: true)]
@@ -40,11 +39,10 @@ class Note
 
     #[ORM\ManyToOne(inversedBy: 'note')]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['note:readAll'])]
     private ?User $utilisateur = null;
 
     #[ORM\Column(length: 50, nullable: true)]
-    #[Groups(['note:readAll'])]
+    #[Groups(['note:readAll', 'note:id'])]
     private ?string $titreCritique = null;
 
     public function __construct()

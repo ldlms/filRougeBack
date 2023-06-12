@@ -14,13 +14,17 @@ use App\Repository\NoteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\component\Serializer\Serializer;
 use Doctrine\ORM\Mapping\Id;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 use App\Service\Utils;
 use PhpParser\Node\Stmt\Nop;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
 class ApiNoteController extends AbstractController{
-    #[Route('api/note/add', name:'app_api_note_add', methods:'POST')]
-    public function addNote(Request $request, SerializerInterface $serialize, EntityManagerInterface $em, NoteRepository $repo,LivreRepository $repoBook,LivreController $con,):Response{
+    #[Route('api/note/add/{id}', name:'app_api_note_add', methods:'POST')]
+    public function addNote(String $id,Request $request, SerializerInterface $serialize, EntityManagerInterface $em, NoteRepository $repo,LivreRepository $repoBook,LivreController $con,):Response{
         try{    
         //récupérer le contenu de la requête JSON provenant du fron
             $json = $request->getContent();
@@ -30,7 +34,7 @@ class ApiNoteController extends AbstractController{
                 return $this->json(['erreur'=>'Le Json est vide ou n\'existe pas'], 400, 
                 ['Content-Type'=>'application/json',
                 'Access-Control-Allow-Origin'=> '*',
-                'Access-Control-Allow-Methods'=> 'GET'],[]);
+                'Access-Control-Allow-Methods'=> 'GET']);
             }
             //sérializer le json en tableau
             $data = $serialize->decode($json, 'json');
@@ -46,11 +50,11 @@ class ApiNoteController extends AbstractController{
                     $em->persist($note);
                     $em->flush();
                     $livre = $repoBook->findOneBy(['idApi'=>$data['idApi']]);
-                    $notes = $repo->findBy(['id_livre'=>$livre->getId()]);
+                    $notes = $repo->findBy(['livre'=>$livre->getId()]);
                     return $this->json($notes, 200, 
                     ['Content-Type'=>'application/json',
                     'Access-Control-Allow-Origin'=> '*',
-                    'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'critique:readAll']);
+                    'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'note:readAll']);
                 }else{
                 $book = $con->addLivre($data,$em);
                 $note->setScore(Utils::cleanInputStatic($data['note']));
@@ -60,12 +64,12 @@ class ApiNoteController extends AbstractController{
                 $note->setLivre($book);
                 $em->persist($note);
                 $em->flush();
-                $livre = $repoBook->findOneBy(['idApi'=>$data['idApi']]);
-                $notes = $repo->findBy(['id_livre'=>$livre->getId()]);
-                return $this->json($notes, 200, 
+                $livre = $repoBook->findOneBy(['id'=>$id]);
+                $notes = $repo->findBy(['livre'=>$livre->getId()]);
+                return $this->json('tout est ok', 200, 
                 ['Content-Type'=>'application/json',
                 'Access-Control-Allow-Origin'=> '*',
-                'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'critique:readAll']);
+                'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'note:readAll']);
             }
         }catch(\Exception $e){
             return $this->json(['erreur'=>$e->getMessage()], 500, 
@@ -75,19 +79,18 @@ class ApiNoteController extends AbstractController{
         }
     }
 
-    #[Route('/api/note/id/{id}', name:'app_api_note_all', methods:'GET')]
-    public function getNoteById(NoteRepository $repo,LivreRepository $repoBook,int $id):Response{
+    #[Route('/api/note/get/{id}', name:'app_api_note_all', methods:'GET')]
+    public function getArticle(NoteRepository $repo, LivreRepository $repoBook,String $id):Response{
         $livre = $repoBook->findOneBy(['idApi'=>$id]);
-        $notes = $repo->findBy(['id_livre'=>$livre->getId()]);
+        $notes = $repo->findBy(['livre'=>$livre->getId()]);
         if(empty($notes)){
-            return $this->json(['erreur'=>'Il n\'y a pas de critiques'], 206, ['Content-Type'=>'application/json',
-            'Access-Control-Allow-Origin'=> '*',
+            return $this->json(['erreur'=>'Il n\'y a pas d\'article'], 206, ['Content-Type'=>'application/json',
+            'Access-Control-Allow-Origin'=> 'localhost',
             'Access-Control-Allow-Methods'=> 'GET']);
         }
-        return $this->json($notes, 200, 
-                    ['Content-Type'=>'application/json',
-                    'Access-Control-Allow-Origin'=> '*',
-                    'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'critique:readAll']);
+        return $this->json($notes, 200, ['Content-Type'=>'application/json',
+        'Access-Control-Allow-Origin'=> 'localhost',
+        'Access-Control-Allow-Methods'=> 'GET'], ['groups'=>'note:readAll']);
     }
 }
 
