@@ -45,7 +45,9 @@ class ApiNoteController extends AbstractController{
                     $note->setLivre($verifLivre);
                     $em->persist($note);
                     $em->flush();
-                    return $this->json($data, 200, 
+                    $livre = $repoBook->findOneBy(['idApi'=>$data['idApi']]);
+                    $notes = $repo->findBy(['id_livre'=>$livre->getId()]);
+                    return $this->json($notes, 200, 
                     ['Content-Type'=>'application/json',
                     'Access-Control-Allow-Origin'=> '*',
                     'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'critique:readAll']);
@@ -58,7 +60,9 @@ class ApiNoteController extends AbstractController{
                 $note->setLivre($book);
                 $em->persist($note);
                 $em->flush();
-                return $this->json($data, 200, 
+                $livre = $repoBook->findOneBy(['idApi'=>$data['idApi']]);
+                $notes = $repo->findBy(['id_livre'=>$livre->getId()]);
+                return $this->json($notes, 200, 
                 ['Content-Type'=>'application/json',
                 'Access-Control-Allow-Origin'=> '*',
                 'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'critique:readAll']);
