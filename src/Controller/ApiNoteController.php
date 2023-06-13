@@ -23,7 +23,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
 class ApiNoteController extends AbstractController{
-    #[Route('api/note/add/{id}', name:'app_api_note_add', methods:'POST')]
+    #[Route('api/note/add', name:'app_api_note_add', methods:'POST')]
     public function addNote(String $id,Request $request, SerializerInterface $serialize, EntityManagerInterface $em, NoteRepository $repo,LivreRepository $repoBook,LivreController $con,):Response{
         try{    
         //récupérer le contenu de la requête JSON provenant du fron
@@ -49,8 +49,7 @@ class ApiNoteController extends AbstractController{
                     $note->setLivre($verifLivre);
                     $em->persist($note);
                     $em->flush();
-                    $livre = $repoBook->findOneBy(['idApi'=>$data['idApi']]);
-                    $notes = $repo->findBy(['livre'=>$livre->getId()]);
+                    $notes = $repo->findBy(['livre'=>$verifLivre->getId()]);
                     return $this->json($notes, 200, 
                     ['Content-Type'=>'application/json',
                     'Access-Control-Allow-Origin'=> '*',
@@ -64,9 +63,8 @@ class ApiNoteController extends AbstractController{
                 $note->setLivre($book);
                 $em->persist($note);
                 $em->flush();
-                $livre = $repoBook->findOneBy(['id'=>$id]);
-                $notes = $repo->findBy(['livre'=>$livre->getId()]);
-                return $this->json('tout est ok', 200, 
+                $notes = $repo->findBy(['livre'=>$book->getId()]);
+                return $this->json($notes, 200, 
                 ['Content-Type'=>'application/json',
                 'Access-Control-Allow-Origin'=> '*',
                 'Access-Control-Allow-Methods'=> 'GET'],['groups'=>'note:readAll']);
